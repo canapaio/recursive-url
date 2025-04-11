@@ -1,6 +1,7 @@
 from langchain.docstore.document import Document
 from typing import List
-from recursive_url_parser import RecursiveUrlParser  # Import your custom parser
+from cat.mad_hatter.decorators import hook
+from .recursive_url_parser import RecursiveURLParser  # Import your custom parser
 
 chunk_size = 512  # Chunk size for the parser
 chunk_overlap = 128  # Chunk overlap for the parser
@@ -53,7 +54,7 @@ def before_rabbithole_splits_text(doc: Document, cat) -> Document:
     # You can check if the document source is a URL and apply your custom parser
     if doc.metadata.get("source_type") == "URL":
         # Instantiate your custom parser with appropriate settings
-        parser = RecursiveUrlParser(url=doc.page_content, chunk_size=chunk_size, chunk_overlap=chunk_overlap, recursive=recursive, **option)
+        parser = RecursiveURLParser(url=doc.page_content, chunk_size=chunk_size, chunk_overlap=chunk_overlap, recursive=recursive, **option)
         parsed_content = parser.parse()  # This should return the parsed content
         doc.page_content = parsed_content  # Update the document content with parsed content
 
@@ -90,7 +91,7 @@ def before_rabbithole_stores_documents(docs: List[Document], cat) -> List[Docume
         # You can check if the document source is a URL and apply your custom parser
         if doc.metadata.get("source_type") == "URL":
             # Instantiate your custom parser with appropriate settings
-            parser = RecursiveUrlParser(url=doc.page_content, chunk_size=chunk_size, chunk_overlap=chunk_overlap, recursive=recursive, **option)
+            parser = RecursiveURLParser(url=doc.page_content, chunk_size=chunk_size, chunk_overlap=chunk_overlap, recursive=recursive, **option)
             parsed_content = parser.parse()  # This should return the parsed content
             doc.page_content = parsed_content  # Update the document content with parsed content
 
@@ -101,7 +102,7 @@ def before_rabbithole_stores_documents(docs: List[Document], cat) -> List[Docume
 @hook(priority=10)
 def rabbithole_instantiates_parsers(file_handlers: dict, cat) -> dict:
     new_handlers = {
-        "text/html": RecursiveUrlParser(chunk_size=chunk_size, chunk_overlap=chunk_overlap, recursive=recursive, **option)
+        "text/html": RecursiveURLParser(chunk_size=chunk_size, chunk_overlap=chunk_overlap, recursive=recursive, **option)
     }
     file_handlers = file_handlers | new_handlers
     return file_handlers
